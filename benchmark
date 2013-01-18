@@ -1,27 +1,24 @@
 #!/bin/sh
 # Penetration Test Shell Script 
 # Author: Daniel Schniepp & Christoph Heymann 2013 
-# urls.txt seperate urls with line break
+# urls.txt for penetration urls, seperate urls with line break
 
 #Dir for Logs
 dir=`date +%s`
 mkdir "logs/$dir"
-
-#URL index
+servicelogip="192.168.56.101:8001"
 i=0
+
+curl -O "http://$servicelogip/start" > /dev/null 2>&1 &
 
 for url in `cat urls.txt`
 do
-	ab -n 100 -c 10 -e "logs/$dir/$i.csv" $url >> "logs/$dir/result.log" &
+	ab -n 100 -c 10 -e "logs/$dir/$i.csv" $url > "logs/$dir/result.log" &
 	i=$((i+1))
 done
 wait
 
-echo "	| Last Build | Best Build  + Date | Change %"
-echo "------------------------------------------------------"
+cat "logs/$dir/result.log"
+curl -o "logs/$dir/servicelog.csv" "http://$servicelogip/stop" > /dev/null 2>&1
 
-for dir_log in `ls logs/`
-do
-	#cut -d, -f2 logs/2013_01_09_00_27/0.csv | sed 1d
-	echo "logs/$dir_log"
-done
+echo "Finished! Go to $PWD/logs/$dir for log data"
